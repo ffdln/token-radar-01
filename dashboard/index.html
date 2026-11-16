@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Launch Radar: pre-token protocols ranked by implied value</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<a class="skip" href="#board">Skip to the board</a>
+<main id="board" tabindex="-1" aria-busy="true"></main>
+<section class="note" aria-label="Research note">
+  <div class="shell">
+    <h2>Research note: how this radar prices a launch</h2>
+    <p><strong>The model is fitted, not asserted.</strong> The comps are the snapshot's own 128 protocols that record a token with a positive market cap and a positive TVL. A log-log regression of market cap on TVL gives ln(mcap) = 6.96 + 0.52 x ln(tvl). One live protocol records a market cap of -1 and is excluded from the fit. Implied value is that fitted base, times a bounded growth adjustment (seven-day TVL change, clamped to -60%..+120%, weight 0.5) and a bounded maturity adjustment (0.6 + age/1095 x 0.4, age unknown: 365 days).</p>
+    <p><strong>The fit is weak, and that is the point.</strong> TVL explains about 19% of the variance in log market cap (R2 = 0.19). Tested blind — the comps split in two by a deterministic slug rule, the fit re-run on 69, scored against the 59 held out — the median absolute error is 96% and the 75th percentile is 303%. An implied value here is a comps-derived estimate with wide uncertainty, never a price and never a prediction that a token will launch.</p>
+    <p><strong>What counts as pre-token.</strong> A protocol is ranked only when its record carries no token (no market cap, no CoinGecko id, no symbol) and it is not a wrapped, staked or bridged product of a token that already trades, not a bridge, not liquid staking or restaking, not a CEX product, not a versioned pool and not an exchange's own product. That rule mirrors the watchlist's own exclusions, so all 40 watchlist protocols are ranked, and 144 pre-token protocols are set aside with their reason shown. Saying a protocol records no token is not saying it has none: its record may simply not carry one.</p>
+    <p><strong>Farm plans are costed, not slogans.</strong> Each plan's capital follows the protocol's TVL ($50-$250), its gas follows the protocol's own chain (about $6 a transaction on Ethereum, about $1 on a cheap chain), and its hold follows the protocol's age (30-60 days). The detail view shows the whole plan's gas and the transaction count.</p>
+  </div>
+</section>
+<script src="../data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
