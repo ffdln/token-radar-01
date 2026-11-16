@@ -47,6 +47,8 @@ a { color: var(--accent); }
 }
 .skip:focus { left: var(--step-4); top: var(--step-4); }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.panel :focus-visible, .tabs :focus-visible, .detail :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+tbody tr:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 
 .shell { max-width: 1320px; margin: 0 auto; padding: var(--step-5) var(--step-6) var(--step-7); }
 .top {

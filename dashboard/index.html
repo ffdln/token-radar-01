@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,9 +7,9 @@
 <link rel="stylesheet" href="app.css">
 </head>
 <body>
-<a class="skip" href="#board">Skip to the board</a>
-<main id="board" tabindex="-1" aria-busy="true"></main>
-<section class="note" aria-label="Research note">
+<a class="skip" href="#board" aria-label="Skip to the ranked board">Skip to the board</a>
+<main id="board" tabindex="-1" aria-busy="true" role="main" aria-label="Launch Radar ranked board"></main>
+<section class="note" role="complementary" aria-label="Research note: how the radar prices a launch">
   <div class="shell">
     <h2>Research note: how this radar prices a launch</h2>
     <p><strong>The model is fitted, not asserted.</strong> The comps are the snapshot's own 128 protocols that record a token with a positive market cap and a positive TVL. A log-log regression of market cap on TVL gives ln(mcap) = 6.96 + 0.52 x ln(tvl). One live protocol records a market cap of -1 and is excluded from the fit. Implied value is that fitted base, times a bounded growth adjustment (seven-day TVL change, clamped to -60%..+120%, weight 0.5) and a bounded maturity adjustment (0.6 + age/1095 x 0.4, age unknown: 365 days).</p>

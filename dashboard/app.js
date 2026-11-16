@@ -187,8 +187,8 @@
 
   function header() {
     return el('header', { class: 'top' },
-      el('div', { class: 'brand' }, el('span', { class: 'mark' }), el('span', { class: 'brand-name', text: 'Launch Radar' })),
-      el('div', { class: 'top-meta' },
+      el('div', { class: 'brand' }, el('span', { class: 'mark', 'aria-hidden': 'true' }), el('span', { class: 'brand-name', text: 'Launch Radar' })),
+      el('div', { class: 'top-meta', role: 'group', 'aria-label': 'Snapshot metadata' },
         el('span', null, 'Snapshot ', el('b', { text: DATA.as_of })),
         el('span', null, 'DefiLlama protocol index'),
         el('span', null, el('b', { text: DATA.model_version }), ' model')
@@ -210,7 +210,7 @@
           el('b', { text: f.blind_median_abs_pct.toFixed(0) + '%' }),
           '.')
       ),
-      el('div', { class: 'facts' },
+      el('div', { class: 'facts', role: 'group', 'aria-label': 'Radar coverage facts' },
         el('div', { class: 'fact' }, el('span', { text: 'Watchlist covered' }), el('b', { text: DATA.watchlist_size + ' / ' + DATA.watchlist_size })),
         el('div', { class: 'fact' }, el('span', { text: 'Pre-token rows scored' }), el('b', { text: String(DATA.board_size) })),
         el('div', { class: 'fact' }, el('span', { text: 'Early rows beyond the list' }), el('b', { text: String(DATA.early_size) })),
@@ -230,20 +230,20 @@
     );
     select.addEventListener('change', function () { state.category = select.value; writeHash(); render(); });
     function tabBtn(tab, label) {
-      return el('button', { type: 'button', 'aria-pressed': state.tab === tab ? 'true' : 'false', text: label, onclick: function () { state.tab = tab; writeHash(); render(); } });
+      return el('button', { type: 'button', 'aria-pressed': state.tab === tab ? 'true' : 'false', 'aria-label': 'Show ' + label.toLowerCase() + ' protocols', text: label, onclick: function () { state.tab = tab; writeHash(); render(); } });
     }
     var countText = state.tab === 'pre-token' ? rows().length + ' rows shown' : state.tab === 'live' ? DATA.live.length + ' live-token protocols' : DATA.set_aside.length + ' set aside';
     return el('div', { class: 'controls' },
-      el('div', { class: 'field' }, el('label', { for: 'q', text: 'Search' }), search),
-      el('div', { class: 'field' }, el('label', { for: 'category', text: 'Category' }), select),
-      el('div', { class: 'field' }, el('span', { text: 'Token status' }), el('div', { class: 'tabs' }, tabBtn('pre-token', 'Pre-token'), tabBtn('live', 'Live token'), tabBtn('aside', 'Set aside'))),
-      el('span', { class: 'count', text: countText })
+      el('div', { class: 'field', role: 'group', 'aria-label': 'Search the ranked board' }, el('label', { for: 'q', text: 'Search' }), search),
+      el('div', { class: 'field', role: 'group', 'aria-label': 'Filter the board by category' }, el('label', { for: 'category', text: 'Category' }), select),
+      el('div', { class: 'field', role: 'group', 'aria-label': 'Filter the board by token status' }, el('span', { text: 'Token status' }), el('div', { class: 'tabs', role: 'group', 'aria-label': 'Token status tabs' }, tabBtn('pre-token', 'Pre-token'), tabBtn('live', 'Live token'), tabBtn('aside', 'Set aside'))),
+      el('span', { class: 'count', 'aria-live': 'polite', text: countText })
     );
   }
 
   function sortHeader(key, label) {
-    return el('th', { scope: 'col' },
-      el('button', { type: 'button', onclick: function () { if (state.sort === key) state.dir = -state.dir; else { state.sort = key; state.dir = -1; } render(); } },
+    return el('th', { scope: 'col', 'aria-sort': state.sort === key ? (state.dir < 0 ? 'descending' : 'ascending') : 'none' },
+      el('button', { type: 'button', 'aria-label': 'Sort the board by ' + label, onclick: function () { if (state.sort === key) state.dir = -state.dir; else { state.sort = key; state.dir = -1; } render(); } },
         label,
         state.sort === key ? el('span', { 'aria-hidden': 'true', text: state.dir < 0 ? ' v' : ' ^' }) : null
       )
@@ -256,7 +256,7 @@
       return el('div', { class: 'panel' }, el('div', { class: 'empty' },
         el('h2', { text: 'No protocol matches that filter' }),
         el('p', { text: 'Clear the search or pick another category to see the board again.' }),
-        el('button', { class: 'button primary', type: 'button', text: 'Clear filters', onclick: function () { state.q = ''; state.category = 'all'; writeHash(); render(); } })
+        el('button', { class: 'button primary', type: 'button', 'aria-label': 'Clear the search and category filters', text: 'Clear filters', onclick: function () { state.q = ''; state.category = 'all'; writeHash(); render(); } })
       ));
     }
     var max = list[0].implied_value_usd || 1;
@@ -266,7 +266,7 @@
       var growthClass = r.change_7d === null ? '' : r.change_7d >= 0 ? 'pos' : 'neg';
       var tr = el('tr', {
         'data-selected': state.selected === r.slug ? 'true' : 'false',
-        tabindex: '0',
+        tabindex: '0', 'aria-label': 'Open the detail drawer for ' + r.name,
         onclick: function () { openDetail(r.slug); },
         onkeydown: function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDetail(r.slug); } }
       },
@@ -280,10 +280,10 @@
         el('td', { class: 'num', text: fmtAge(r.age_days) }),
         el('td', null, el('div', { class: 'implied' },
           el('div', { class: 'bar', 'aria-hidden': 'true' }, el('i', { style: 'width:' + Math.max(3, Math.round((r.implied_value_usd / max) * 100)) + '%' })),
-          el('span', { class: 'num', text: fmtUsd(r.implied_value_usd) })
+          el('span', { class: 'num', 'aria-label': 'Implied value ' + fmtUsd(r.implied_value_usd), text: fmtUsd(r.implied_value_usd) })
         )),
         el('td', { class: 'num', text: fmtMult(r.implied_value_usd / r.tvl_usd) }),
-        el('td', null, el('span', { class: 'status', text: 'no token' }))
+        el('td', null, el('span', { class: 'status', 'aria-label': 'No token on record', text: 'no token' }))
       );
       tbody.appendChild(tr);
     });
@@ -316,7 +316,7 @@
         el('td', { class: 'num', text: fmtUsd(r.tvl_usd) }),
         el('td', { class: 'num ' + (r.change_7d !== null && r.change_7d >= 0 ? 'pos' : 'neg'), text: fmtPct(r.change_7d) }),
         el('td', { class: 'num', text: fmtUsd(r.mcap_usd) }),
-        el('td', null, el('span', { class: 'status live', text: 'already trades' }))
+        el('td', null, el('span', { class: 'status live', 'aria-label': 'Token already trades', text: 'already trades' }))
       ));
     });
     return el('div', { class: 'panel' },
@@ -340,7 +340,7 @@
       tbody.appendChild(el('tr', null,
         el('td', null, el('div', { class: 'name' }, el('b', { text: r.name }), el('span', { class: 'sub', text: (r.category || 'Other') + ' on ' + (r.chains && r.chains.length ? r.chains.slice(0, 2).join(', ') : 'an unnamed chain') }))),
         el('td', { class: 'num', text: fmtUsd(r.tvl_usd) }),
-        el('td', null, el('span', { class: 'status aside', text: r.reason }))
+        el('td', null, el('span', { class: 'status aside', 'aria-label': 'Set aside: ' + r.reason, text: r.reason }))
       ));
     });
     return el('div', { class: 'panel' },
@@ -357,24 +357,24 @@
   function modelPanel() {
     var m = DATA.model;
     var f = DATA.fit;
-    return el('section', { class: 'panel model' },
+    return el('section', { class: 'panel model', 'aria-label': 'How implied value is computed' },
       el('h2', { text: 'How implied value is computed' }),
       el('p', { class: 'sub', text: 'One function scores every row. The base is fitted from the snapshot\u2019s own tokenised protocols; growth and maturity are bounded adjustments on top. No protocol name is special-cased, and no row is hand-picked.' }),
-      el('div', { class: 'formula' },
+      el('div', { class: 'formula', role: 'group', 'aria-label': 'Implied value formula' },
         'implied = round( exp(', el('b', { text: m.fit_intercept.toFixed(4) }), ' + ', el('b', { text: m.fit_slope.toFixed(4) }), ' x ln(tvl_usd)) x (1 + clamp(change_7d, ', el('b', { text: String(m.growth_floor) }), ', ', el('b', { text: String(m.growth_cap) }), ') / 100 x ', el('b', { text: String(m.growth_weight) }), ') x (', el('b', { text: String(m.maturity_floor) }), ' + min(age_days, ', el('b', { text: String(m.maturity_days) }), ') / ', el('b', { text: String(m.maturity_days) }), ' x ', el('b', { text: String(m.maturity_range) }), ') )'
       ),
-      el('div', { class: 'fitgrid' },
-        el('div', { class: 'fitstat' }, el('b', { text: String(f.n) }), el('span', { text: 'comps fitted' })),
-        el('div', { class: 'fitstat' }, el('b', { text: 'R2 ' + f.r2.toFixed(2) }), el('span', { text: 'variance in log mcap explained' })),
-        el('div', { class: 'fitstat' }, el('b', { text: f.blind_train_n + ' / ' + f.blind_test_n }), el('span', { text: 'blind train / held-out test' })),
-        el('div', { class: 'fitstat' }, el('b', { text: f.blind_median_abs_pct.toFixed(0) + '%' }), el('span', { text: 'blind median absolute error' })),
-        el('div', { class: 'fitstat' }, el('b', { text: f.blind_p75_abs_pct.toFixed(0) + '%' }), el('span', { text: 'blind 75th-percentile error' }))
+      el('div', { class: 'fitgrid', role: 'group', 'aria-label': 'Fit and blind test statistics' },
+        el('div', { class: 'fitstat', role: 'group', 'aria-label': 'Comps fitted' }, el('b', { text: String(f.n) }), el('span', { text: 'comps fitted' })),
+        el('div', { class: 'fitstat', role: 'group', 'aria-label': 'Variance in log market cap explained' }, el('b', { text: 'R2 ' + f.r2.toFixed(2) }), el('span', { text: 'variance in log mcap explained' })),
+        el('div', { class: 'fitstat', role: 'group', 'aria-label': 'Blind train and held-out test sizes' }, el('b', { text: f.blind_train_n + ' / ' + f.blind_test_n }), el('span', { text: 'blind train / held-out test' })),
+        el('div', { class: 'fitstat', role: 'group', 'aria-label': 'Blind median absolute error' }, el('b', { text: f.blind_median_abs_pct.toFixed(0) + '%' }), el('span', { text: 'blind median absolute error' })),
+        el('div', { class: 'fitstat', role: 'group', 'aria-label': 'Blind 75th percentile error' }, el('b', { text: f.blind_p75_abs_pct.toFixed(0) + '%' }), el('span', { text: 'blind 75th-percentile error' }))
       ),
       el('p', { class: 'sub', text: 'TVL and seven-day growth come from the snapshot. Age is the time since the protocol was first listed, the best record of how long it has run with no token; an unlisted age uses ' + m.unknown_age_days + ' days. The blind test splits the comps by a deterministic slug rule, fits on one half and scores the other against its recorded market caps. The fit is weak: treat every implied value as an estimate with wide uncertainty, never as a price.' })
     );
   }
 
-  var dialog = el('dialog', { class: 'detail', id: 'detail', 'aria-labelledby': 'detail-title' });
+  var dialog = el('dialog', { class: 'detail', id: 'detail', 'aria-labelledby': 'detail-title', 'aria-modal': 'true' });
   dialog.addEventListener('close', function () { state.selected = null; writeHash(); });
 
   function openDetail(slug) {
@@ -385,7 +385,7 @@
     dialog.textContent = '';
     var steps = farmSteps(row);
     var recomputed = impliedOf(row, DATA.model);
-    dialog.appendChild(el('div', { class: 'detail-head' },
+    dialog.appendChild(el('div', { class: 'detail-head', role: 'group', 'aria-label': 'Protocol details header' },
       el('div', null,
         el('span', { class: 'brand-name', text: 'Rank ' + row.rank + ' of ' + DATA.board_size }),
         el('h2', { id: 'detail-title', text: row.name }),
@@ -395,7 +395,7 @@
     ));
     dialog.appendChild(el('section', { class: 'detail-section' },
       el('h3', { text: 'Implied value' }),
-      el('div', { class: 'equation' },
+      el('div', { class: 'equation', role: 'group', 'aria-label': 'Implied value inputs' },
         el('div', null, el('span', { text: 'TVL' }), el('b', { class: 'num', text: fmtUsd(row.tvl_usd) })),
         el('div', null, el('span', { text: 'Seven-day growth' }), el('b', { class: 'num', text: fmtPct(row.change_7d) })),
         el('div', null, el('span', { text: 'Age with no token' }), el('b', { class: 'num', text: fmtAge(row.age_days) })),
@@ -408,7 +408,7 @@
     ));
     dialog.appendChild(el('section', { class: 'detail-section' },
       el('h3', { text: 'Farm plan' }),
-      el('ol', { class: 'steps' }, steps.map(function (s) {
+      el('ol', { class: 'steps', 'aria-label': 'Six farm steps for this protocol' }, steps.map(function (s) {
         var at = s.indexOf(' Cost: ');
         var action = at >= 0 ? s.slice(0, at) : s;
         var tail = at >= 0 ? s.slice(at + 1) : '';
